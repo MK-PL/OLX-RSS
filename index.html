@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>OLX RSS</title>
+    <meta charset="utf-8" /> 
+    <link href="css/style.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <header>
+      <h1><span>O</span><span>L</span><span>X</span></h1>
+      <h1 class="blackFont">RSS</h1>
+    </header>
+    <form action="src/get.php" method="get">
+     <label>Wprowadź poniżej adres z parametrami wyszukiwania:</label>
+      <div class="form-float">
+        <div class="form-input">
+          <input type="text" name="url" placeholder="...">
+        </div>
+        <div class="form-button">
+          <button type="submit">GENERUJ</button>
+        </div>
+     </div>
+     <div class="form-float form-checkbox">
+         <input id="okolica" name="okolica" value="true" type="checkbox"><label for="okolica">Uwzględnij dodatkowe ogłoszenia z okolicy</label>
+      </div>
+    </form>
+    <section class="description">
+      <h2>Co to jest?</h2>
+      <p><strong>OLX RSS</strong> jest generatorem kanału RSS do serwisu OLX.pl, który pozwala na spersonalizowanie <strong>wszystkich</strong> parametrów wyszukiwania.</p>
+      <h2>Jak stworzyć kanał RSS?</h2>
+      <ol>
+        <li>Wejdź w wybraną przez Ciebie kategorię na stronie OLX.pl i ustaw parametry wyszukiwania.<br/>Ustaw sortowanie ogłoszeń po najnowszych, żeby śledzić najnowsze ogłoszenia w kanale RSS. W kanale RSS domyślnie wyświetlane są ogłoszenia z dwóch pierwszych podstron z wynikami. 
+          <img src="img/img1.png">
+        </li>
+        <li>Przekopiuj link URL z pola adresu WWW przeglądarki. Powinny być w nim zamieszczone parametry wyszukiwania.
+          <img src="img/img2.png">
+        </li>
+        <li>Wprowadź adres do wskazanego pola na stronie internetowej skryptu i naciśnij przycisk "Generuj".
+          <img src="img/img3.png">
+        </li>
+        <li>Zostanie wygenerowany kanał RSS z ogłoszeniami o podanych parametrach wyszukiwaniach, jak w podanym adresie URL do serwisu OLX.pl.
+          <img src="img/img4.png">
+        </li>
+      </ol>
+    </section>
+    <footer>Maciej Kawa 2018</footer>
+  </body>
+</html>
