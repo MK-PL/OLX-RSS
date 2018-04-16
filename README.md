@@ -11,13 +11,19 @@ Skopiuj pliki na serwer obsługujący PHP w wersji >= 5.3 i otwórz w przegląda
 
 ![podgląd](https://raw.githubusercontent.com/MK-PL/OLX-RSS/master/img/img1.png)
 
+---
+
 2. Przekopiuj link URL z pola adresu WWW przeglądarki. Powinny być w nim zamieszczone parametry wyszukiwania.
 
 ![podgląd](https://raw.githubusercontent.com/MK-PL/OLX-RSS/master/img/img2.png)
 
+---
+
 3. Wprowadź adres do wskazanego pola na stronie internetowej skryptu i naciśnij przycisk "Generuj".
 
 ![podgląd](https://raw.githubusercontent.com/MK-PL/OLX-RSS/master/img/img3.png)
+
+---
 
 4. Zostanie wygenerowany kanał RSS z ogłoszeniami o podanych parametrach wyszukiwaniach, jak w podanym adresie URL do serwisu OLX.pl.
 
