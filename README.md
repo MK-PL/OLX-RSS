@@ -37,6 +37,7 @@ Skopiuj pliki na serwer obsługujący PHP w wersji >= 5.3 i otwórz w przegląda
 
 ## Zmiany
 
+- 0.1.1 Naprawienie wyświetlania ofert promowanych (wyróżnionych) w kanale RSS.
 - 0.1.0 Start skryptu.
 
 ## Błędy

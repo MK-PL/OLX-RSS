@@ -43,8 +43,14 @@ error_reporting(E_ALL & ~E_NOTICE);
     foreach($page->find('#offers_table .wrap') as $article) {
 
         $item[$j] = $TestFeed->createNewItem();
-        $item[$j]->setTitle($article->find('.detailsLink strong', 0)->plaintext);
-        $item[$j]->setLink($article->find('.detailsLink', 0)->href);
+        if($article->find('.detailsLink strong', 0)->plaintext != ''){
+          $item[$j]->setTitle($article->find('.detailsLink strong', 0)->plaintext);
+          $item[$j]->setLink($article->find('.detailsLink', 0)->href);
+        } else {
+          $item[$j]->setTitle($article->find('.detailsLinkPromoted strong', 0)->plaintext);
+          $item[$j]->setLink($article->find('.detailsLinkPromoted', 0)->href);
+        }
+
         
         $price = $article->find('.price', 0)->plaintext;
         $location = $article->find('.marginbott5', 0)->plaintext;
