@@ -4,21 +4,35 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE);
 
 	include 'simple_html_dom.php';
+	include 'ItemInterface.php';
 	include 'Item.php';
+	include 'FeedInterface.php';
 	include 'Feed.php';
-	include 'RSS2.php';
+	include 'ChannelInterface.php';
+	include 'Channel.php';
+	include 'SimpleXMLElement.php';
+
+  use Bhaktaraz\RSSGenerator\Item;
+  use Bhaktaraz\RSSGenerator\Feed;
+  use Bhaktaraz\RSSGenerator\Channel;
   
   date_default_timezone_set('UTC');
   setlocale(LC_ALL, array( "pl_PL", "polish_pol" ));
-	use \FeedWriter\RSS2;
-  
-	$TestFeed = new RSS2;
-	$TestFeed->setTitle($_GET['url']);
+
+  $feed = new Feed();
+  $channel = new Channel();
   
   $baseUrl = html_entity_decode($_GET['url']);
   $baseUrl = str_replace("&view=galleryWide", "", $baseUrl);
   $baseUrl = str_replace("?view=galleryWide", "", $baseUrl);
   $baseUrl = trim($baseUrl, '/');
+  
+  $channel
+    ->title($_GET['url'])
+    ->description("OLX RSS")
+    ->url($_GET['url'])
+    ->language('pl_PL')
+    ->appendTo($feed);
   
   $context = stream_context_create(array('http' => array('header' => 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0')));
   
@@ -42,13 +56,15 @@ error_reporting(E_ALL & ~E_NOTICE);
     
     foreach($page->find('#offers_table .wrap') as $article) {
 
-        $item[$j] = $TestFeed->createNewItem();
+        $item[$j] = new Item();
         if($article->find('.detailsLink strong', 0)->plaintext != ''){
-          $item[$j]->setTitle($article->find('.detailsLink strong', 0)->plaintext);
-          $item[$j]->setLink($article->find('.detailsLink', 0)->href);
+          $item[$j]->title($article->find('.detailsLink strong', 0)->plaintext);
+          $item[$j]->url($article->find('.detailsLink', 0)->href);
+          $item[$j]->guid($article->find('.detailsLink', 0)->href);
         } else {
-          $item[$j]->setTitle($article->find('.detailsLinkPromoted strong', 0)->plaintext);
-          $item[$j]->setLink($article->find('.detailsLinkPromoted', 0)->href);
+          $item[$j]->title($article->find('.detailsLinkPromoted strong', 0)->plaintext);
+          $item[$j]->url($article->find('.detailsLinkPromoted', 0)->href);
+          $item[$j]->guid($article->find('.detailsLinkPromoted', 0)->href);
         }
 
         
@@ -61,7 +77,7 @@ error_reporting(E_ALL & ~E_NOTICE);
           $date = strftime('%e %b', strtotime('-1 days'));
         }
       
-        $item[$j]->setDescription ('
+        $item[$j]->description('
         <table cellpadding="10">
           <tbody>
             <tr>
@@ -79,10 +95,10 @@ error_reporting(E_ALL & ~E_NOTICE);
           </tbody>
         </table><hr>');
       
-        $TestFeed->addItem($item[$j]);
+        $item[$j]->appendTo($channel);
         $j++;
     }
   }
 
-	$TestFeed->printFeed();
+	echo $feed;
 ?>
