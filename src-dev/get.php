@@ -31,7 +31,7 @@ error_reporting(E_ALL & ~E_NOTICE);
     ->title($_GET['url'])
     ->description("OLX RSS")
     ->url($_GET['url'])
-    ->language('pl_PL')
+    ->language('pl')
     ->appendTo($feed);
   
   $context = stream_context_create(array('http' => array('header' => 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0')));
