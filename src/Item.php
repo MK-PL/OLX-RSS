@@ -1,390 +1,215 @@
 <?php
-namespace FeedWriter;
 
-use \DateTime;
+namespace Bhaktaraz\RSSGenerator;
 
-/*
- * Copyright (C) 2008 Anis uddin Ahmad <anisniit@gmail.com>
- * Copyright (C) 2010-2013, 2015-2016 Michael Bemmerl <mail@mx-server.de>
- *
- * This file is part of the "Universal Feed Writer" project.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+use Bhaktaraz\RSSGenerator\ItemInterface;
+use Bhaktaraz\RSSGenerator\ChannelInterface;
+use Bhaktaraz\RSSGenerator\SimpleXMLElement;
 
-/**
- * Universal Feed Writer
- *
- * Item class - Used as feed element in Feed class
- *
- * @package         UniversalFeedWriter
- * @author          Anis uddin Ahmad <anisniit@gmail.com>
- * @link            http://www.ajaxray.com/projects/rss
- */
-class Item
+class Item implements ItemInterface
 {
-    /**
-    * Collection of feed item elements
-    */
-    private $elements = array();
+
+    /** @var string */
+    protected $title;
+
+    /** @var string */
+    protected $url;
+
+    /** @var string */
+    protected $description;
+
+    /** @var  string */
+    protected $content;
+
+    /** @var  string */
+    protected $creator;
+
+    /** @var array */
+    protected $categories = [];
+
+    /** @var string */
+    protected $guid;
+
+    /** @var bool */
+    protected $isPermalink;
+
+    /** @var int */
+    protected $pubDate;
+
+    /** @var array */
+    protected $enclosure;
 
     /**
-    * Contains the format of this feed.
-    */
-    private $version;
-
-    /**
-    * Is used as a suffix when multiple elements have the same name.
-    **/
-    private $_cpt = 0;
-
-    /**
-    * Constructor
-    *
-    * @param    constant  (RSS1/RSS2/ATOM) RSS2 is default.
-    */
-    public function __construct($version = Feed::RSS2)
-    {
-        $this->version = $version;
-    }
-
-    /**
-    * Return an unique number
-    *
-    * @access   private
-    * @return   int
-    **/
-    private function cpt()
-    {
-        return $this->_cpt++;
-    }
-
-    /**
-    * Add an element to elements array
-    *
-    * @access   public
-    * @param    string  The tag name of an element
-    * @param    string  The content of tag
-    * @param    array   Attributes (if any) in 'attrName' => 'attrValue' format
-    * @param    boolean Specifies if an already existing element is overwritten.
-    * @param    boolean Specifies if multiple elements of the same name are allowed.
-    * @return   self
-    */
-    public function addElement($elementName, $content, $attributes = null, $overwrite = FALSE, $allowMultiple = FALSE)
-    {
-        $key = $elementName;
-
-        // return if element already exists & if overwriting is disabled
-        // & if multiple elements are not allowed.
-        if (isset($this->elements[$elementName]) && !$overwrite) {
-            if (!$allowMultiple)
-                return;
-
-            $key .= '-' . $this->cpt();
-        }
-
-        $this->elements[$key]['name']       = $elementName;
-        $this->elements[$key]['content']    = $content;
-        $this->elements[$key]['attributes'] = $attributes;
-
-        return $this;
-    }
-
-    /**
-    * Set multiple feed elements from an array.
-    * Elements which have attributes cannot be added by this method
-    *
-    * @access   public
-    * @param    array   array of elements in 'tagName' => 'tagContent' format.
-    * @return   self
-    */
-    public function addElementArray(array $elementArray)
-    {
-        foreach ($elementArray as $elementName => $content) {
-            $this->addElement($elementName, $content);
-        }
-
-        return $this;
-    }
-
-    /**
-    * Return the collection of elements in this feed item
-    *
-    * @access   public
-    * @return   array   All elements of this item.
-    */
-    public function getElements()
-    {
-        return $this->elements;
-    }
-
-    /**
-    * Return the type of this feed item
-    *
-    * @access   public
-    * @return   string  The feed type, as defined in Feed.php
-    */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    // Wrapper functions ------------------------------------------------------
-
-    /**
-    * Set the 'description' element of feed item
-    *
-    * @access   public
-    * @param    string  The content of 'description' or 'summary' element
-    * @return   self
-    */
-    public function setDescription($description)
-    {
-        $tag = ($this->version == Feed::ATOM) ? 'summary' : 'description';
-
-        return $this->addElement($tag, $description);
-    }
-
-    /**
-     * Set the 'content' element of the feed item
-     * For ATOM feeds only
-     *
-     * @access  public
-     * @param   string  Content for the item (i.e., the body of a blog post).
-     * @return  self
+     * Set item title
+     * @param string $title
+     * @return $this
      */
-    public function setContent($content)
+    public function title($title)
     {
-        if ($this->version != Feed::ATOM)
-            die('The content element is supported in ATOM feeds only.');
+        $this->title = $title;
 
-        return $this->addElement('content', $content, array('type' => 'html'));
+        return $this;
     }
 
     /**
-    * Set the 'title' element of feed item
-    *
-    * @access   public
-    * @param    string  The content of 'title' element
-    * @return   self
-    */
-    public function setTitle($title)
+     * Set item URL
+     * @param string $url
+     * @return $this
+     */
+    public function url($url)
     {
-        return $this->addElement('title', $title);
+        $this->url = $url;
+
+        return $this;
     }
 
     /**
-    * Set the 'date' element of the feed item.
-    *
-    * The value of the date parameter can be either an instance of the
-    * DateTime class, an integer containing a UNIX timestamp or a string
-    * which is parseable by PHP's 'strtotime' function.
-    *
-    * @access   public
-    * @param    DateTime|int|string  Date which should be used.
-    * @return   self
-    */
-    public function setDate($date)
+     * Set item description
+     * @param string $description
+     * @return $this
+     */
+    public function description($description)
     {
-        if (!is_numeric($date)) {
-            if ($date instanceof DateTime)
-                $date = $date->getTimestamp();
-            else {
-                $date = strtotime($date);
+        $this->description = $description;
 
-                if ($date === FALSE)
-                    die('The given date string was not parseable.');
+        return $this;
+    }
+
+    /**
+     * Set item category
+     * @param string $name Category name
+     * @param string $domain Category URL
+     * @return $this
+     */
+    public function category($name, $domain = null)
+    {
+        $this->categories[] = [$name, $domain];
+
+        return $this;
+    }
+
+    /**
+     * Set GUID
+     * @param string $guid
+     * @param bool $isPermalink
+     * @return $this
+     */
+    public function guid($guid, $isPermalink = false)
+    {
+        $this->guid = $guid;
+        $this->isPermalink = $isPermalink;
+
+        return $this;
+    }
+
+    /**
+     * Set published date
+     * @param int $pubDate Unix timestamp
+     * @return $this
+     */
+    public function pubDate($pubDate)
+    {
+        $this->pubDate = $pubDate;
+
+        return $this;
+    }
+
+    /**
+     * Set enclosure
+     * @param string $url Url to media file
+     * @param int $length Length in bytes of the media file
+     * @param string $type Media type, default is audio/mpeg
+     * @return $this
+     */
+    public function enclosure($url, $length = 0, $type = 'audio/mpeg')
+    {
+        $this->enclosure = ['url' => $url, 'length' => $length, 'type' => $type];
+
+        return $this;
+    }
+
+    /**
+     * Append item to the channel
+     * @param ChannelInterface $channel
+     * @return $this
+     */
+    public function appendTo(ChannelInterface $channel)
+    {
+        $channel->addItem($this);
+
+        return $this;
+    }
+
+    /**
+     * Set author name for article
+     *
+     * @param $creator
+     * @return $this
+     */
+    public function creator($creator)
+    {
+        $this->creator = $creator;
+
+        return $this;
+    }
+
+    /**
+     * @param $content
+     * @return $this
+     */
+    public function content($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * Return XML object
+     * @return SimpleXMLElement
+     */
+    public function asXML()
+    {
+        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" ?><item></item>',
+            LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL);
+        $xml->addChild('title', $this->title);
+        $xml->addChild('link', $this->url);
+        if ($this->pubDate !== null) {
+            $xml->addChild('pubDate', date(DATE_RSS, $this->pubDate));
+        }
+
+        if ($this->creator) {
+            $xml->addChildCData("xmlns:dc:creator", $this->creator);
+        }
+        if ($this->guid) {
+            $guid = $xml->addChild('guid', $this->guid);
+
+            if ($this->isPermalink) {
+                $guid->addAttribute('isPermaLink', 'true');
             }
-        } elseif ($date < 0)
-            die('The given date is not an UNIX timestamp.');
-
-        if ($this->version == Feed::ATOM) {
-            $tag    = 'updated';
-            $value  = date(\DATE_ATOM, $date);
-        } elseif ($this->version == Feed::RSS2) {
-            $tag    = 'pubDate';
-            $value  = date(\DATE_RSS, $date);
-        } else {
-            $tag    = 'dc:date';
-            $value  = date("Y-m-d", $date);
         }
 
-        return $this->addElement($tag, $value);
-    }
+        foreach ($this->categories as $category) {
+            $element = $xml->addChild('category', $category[0]);
 
-    /**
-    * Set the 'link' element of feed item
-    *
-    * @access   public
-    * @param    string  The content of 'link' element
-    * @return   void
-    */
-    public function setLink($link)
-    {
-        if ($this->version == Feed::RSS2 || $this->version == Feed::RSS1) {
-            $this->addElement('link', $link);
-        } else {
-            $this->addElement('link','',array('href'=>$link));
-            $this->addElement('id', Feed::uuid($link,'urn:uuid:'));
+            if (isset($category[1])) {
+                $element->addAttribute('domain', $category[1]);
+            }
         }
 
-        return $this;
-    }
+        $xml->addChild('description', $this->description);
+        $xml->addChildCData('xmlns:content:encoded', $this->content);
 
-    /**
-    * Attach a external media to the feed item.
-    * Not supported in RSS 1.0 feeds.
-    *
-    * See RFC 4288 for syntactical correct MIME types.
-    *
-    * Note that you should avoid the use of more than one enclosure in one item,
-    * since some RSS aggregators don't support it.
-    *
-    * @access   public
-    * @param    string  The URL of the media.
-    * @param    integer The length of the media.
-    * @param    string  The MIME type attribute of the media.
-    * @param    boolean Specifies, if multiple enclosures are allowed
-    * @return   self
-    * @link     https://tools.ietf.org/html/rfc4288
-    */
-    public function addEnclosure($url, $length, $type, $multiple = TRUE)
-    {
-        if ($this->version == Feed::RSS1)
-            die('Media attachment is not supported in RSS1 feeds.');
+        if (is_array($this->enclosure) && (count($this->enclosure) == 3)) {
+            $element = $xml->addChild('enclosure');
+            $element->addAttribute('url', $this->enclosure['url']);
+            $element->addAttribute('type', $this->enclosure['type']);
 
-        // the length parameter should be set to 0 if it can't be determined
-        // see http://www.rssboard.org/rss-profile#element-channel-item-enclosure
-        if (!is_numeric($length) || $length < 0)
-            die('The length parameter must be an integer and greater or equals to zero.');
-
-        // Regex used from RFC 4287, page 41
-        if (!is_string($type) || preg_match('/.+\/.+/', $type) != 1)
-            die('type parameter must be a string and a MIME type.');
-
-        $attributes = array('length' => $length, 'type' => $type);
-
-        if ($this->version == Feed::RSS2) {
-            $attributes['url'] = $url;
-            $this->addElement('enclosure', '', $attributes, FALSE, $multiple);
-        } else {
-            $attributes['href'] = $url;
-            $attributes['rel'] = 'enclosure';
-            $this->addElement('atom:link', '', $attributes, FALSE, $multiple);
+            if ($this->enclosure['length']) {
+                $element->addAttribute('length', $this->enclosure['length']);
+            }
         }
 
-        return $this;
+        return $xml;
     }
-
-    /**
-    * Alias of addEnclosure, for backward compatibility. Using only this
-    * method ensures that the 'enclosure' element will be present only once.
-    *
-    * @access   public
-    * @param    string  The URL of the media.
-    * @param    integer The length of the media.
-    * @param    string  The MIME type attribute of the media.
-    * @return   self
-    * @link     https://tools.ietf.org/html/rfc4288
-    * @deprecated Use the addEnclosure method instead.
-    *
-    **/
-    public function setEnclosure($url, $length, $type)
-    {
-        return $this->addEnclosure($url, $length, $type, false);
-    }
-
-    /**
-    * Set the 'author' element of feed item.
-    * Not supported in RSS 1.0 feeds.
-    *
-    * @access   public
-    * @param    string  The author of this item
-    * @param    string  Optional email address of the author
-    * @param    string  Optional URI related to the author
-    * @return   self
-    */
-    public function setAuthor($author, $email = null, $uri = null)
-    {
-        switch ($this->version) {
-            case Feed::RSS1: die('The author element is not supported in RSS1 feeds.');
-                break;
-            case Feed::RSS2:
-                if ($email != null)
-                    $author = $email . ' (' . $author . ')';
-
-                $this->addElement('author', $author);
-                break;
-            case Feed::ATOM:
-                $elements = array('name' => $author);
-
-                // Regex from RFC 4287 page 41
-                if ($email != null && preg_match('/.+@.+/', $email) == 1)
-                    $elements['email'] = $email;
-
-                if ($uri != null)
-                    $elements['uri'] = $uri;
-
-                $this->addElement('author', $elements);
-                break;
-        }
-
-        return $this;
-    }
-
-    /**
-    * Set the unique identifier of the feed item
-    *
-    * On ATOM feeds, the identifier must begin with an valid URI scheme.
-    *
-    * @access   public
-    * @param    string  The unique identifier of this item
-    * @param    boolean The value of the 'isPermaLink' attribute in RSS 2 feeds.
-    * @return   self
-    */
-    public function setId($id, $permaLink = false)
-    {
-        if ($this->version == Feed::RSS2) {
-            if (!is_bool($permaLink))
-                die('The permaLink parameter must be boolean.');
-
-            $permaLink = $permaLink ? 'true' : 'false';
-
-            $this->addElement('guid', $id, array('isPermaLink' => $permaLink));
-        } elseif ($this->version == Feed::ATOM) {
-            // Check if the given ID is an valid URI scheme (see RFC 4287 4.2.6)
-            // The list of valid schemes was generated from http://www.iana.org/assignments/uri-schemes
-            // by using only permanent or historical schemes.
-            $validSchemes = array('aaa', 'aaas', 'about', 'acap', 'acct', 'afs', 'cap', 'cid', 'coap', 'coaps', 'crid', 'data', 'dav', 'dict', 'dns', 'dtn', 'dvb', 'example', 'fax', 'file', 'filesystem', 'ftp', 'geo', 'go', 'gopher', 'h323', 'ham', 'http', 'https', 'iax', 'icap', 'icon', 'im', 'imap', 'info', 'ipn', 'ipp', 'ipps', 'iris', 'iris.beep', 'iris.lwz', 'iris.xpc', 'iris.xpcs', 'jabber', 'jms', 'ldap', 'mailserver', 'mailto', 'mid', 'modem', 'msrp', 'msrps', 'mtqp', 'mupdate', 'news', 'nfs', 'ni', 'nih', 'nntp', 'opaquelocktoken', 'pack', 'pkcs11', 'pop', 'pres', 'prospero', 'reload', 'rsync', 'rtsp', 'rtsps', 'rtspu', 'service', 'session', 'shttp', 'sieve', 'sip', 'sips', 'sms', 'snews', 'snmp', 'soap.beep', 'soap.beeps', 'stun', 'stuns', 'tag', 'tel', 'telnet', 'tftp', 'thismessage', 'tip', 'tn3270', 'turn', 'turns', 'tv', 'urn', 'vemmi', 'videotex', 'wais', 'ws', 'wss', 'xcon', 'xcon-userid', 'xmlrpc.beep', 'xmlrpc.beeps', 'xmpp', 'z39.50', 'z39.50r', 'z39.50s');
-            $found = FALSE;
-            $checkId = strtolower($id);
-            
-            foreach($validSchemes as $scheme)
-                if (strrpos($checkId, $scheme . ':', -strlen($checkId)) !== FALSE)
-                {
-                    $found = TRUE;
-                    break;
-                }
-            
-            if (!$found)
-                die("The ID must begin with an IANA-registered URI scheme.");
-            
-            $this->addElement('id', $id, NULL, TRUE);
-        } else
-            die('A unique ID is not supported in RSS1 feeds.');
-
-        return $this;
-    }
-
- } // end of class Item
+}

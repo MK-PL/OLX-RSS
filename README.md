@@ -32,11 +32,12 @@ Skopiuj pliki na serwer obsługujący PHP w wersji >= 5.3 i otwórz w przegląda
 ## Co zostało użyte do zrobienia OLX RSS?
 
 - HTML/CSS/PHP
-- FeedWriter (https://github.com/mibe/FeedWriter)
+- Bhaktaraz RSSGenerator (https://github.com/bhaktaraz/php-rss-generator)
 - PHP Simple HTML DOM Parser (http://simplehtmldom.sourceforge.net)
 
 ## Zmiany
 
+- 0.1.2 Naprawienie błędu powtarzających się ofert w kanale RSS, zmiana generatora kanałów RSS.
 - 0.1.1 Naprawienie wyświetlania ofert promowanych (wyróżnionych) w kanale RSS.
 - 0.1.0 Start skryptu.
 
