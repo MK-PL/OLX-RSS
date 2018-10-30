@@ -69,8 +69,9 @@ error_reporting(E_ALL & ~E_NOTICE);
 
         
         $price = $article->find('.price', 0)->plaintext;
-        $location = $article->find('.marginbott5', 0)->plaintext;
-        $date = $article->find('p.x-normal', 0)->plaintext;
+        $bcell = $article->find('td.bottom-cell')[0];
+        $location = $bcell->find('.breadcrumb', 0)->plaintext;
+        $date =trim($bcell->find('.breadcrumb', 1)->plaintext);
         if (strpos($date, 'dzisiaj')) {
           $date = strftime('%e %b');
         } elseif (strpos($date, 'wczoraj')) {
