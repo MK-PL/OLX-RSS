@@ -17,6 +17,8 @@ Skopiuj pliki na serwer obsługujący PHP w wersji >= 5.3 i otwórz w przegląda
 
 ![podgląd](https://raw.githubusercontent.com/MK-PL/OLX-RSS/master/img/img2.png)
 
+Uwaga! Portal OLX.pl może wyświetlić inne wyniki wyszukiwania, jeżeli podana fraza jest podobna do innej, popularniejszej frazy. Wówczas należy kliknąć na link w komunikacie 'Zamiast tego wyszukaj <fraza>' i skopiować nowy link URL z pola adresu WWW przeglądarki (taki link URL powinien zawierać w końcówce fragment '?spellchecker=off').
+
 ---
 
 3. Wprowadź adres do wskazanego pola na stronie internetowej skryptu i naciśnij przycisk "Generuj".
