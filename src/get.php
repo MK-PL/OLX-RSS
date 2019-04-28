@@ -4,6 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE);
 
 	include 'simple_html_dom.php';
+	include 'removeAccents.php';
 	include 'ItemInterface.php';
 	include 'Item.php';
 	include 'FeedInterface.php';
@@ -26,6 +27,8 @@ error_reporting(E_ALL & ~E_NOTICE);
   $baseUrl = str_replace("&view=galleryWide", "", $baseUrl);
   $baseUrl = str_replace("?view=galleryWide", "", $baseUrl);
   $baseUrl = trim($baseUrl, '/');
+  $baseUrl = urldecode($baseUrl);
+  $baseUrl = remove_accents($baseUrl);
   
   $channel
     ->title($_GET['url'])
@@ -71,7 +74,7 @@ error_reporting(E_ALL & ~E_NOTICE);
         $price = $article->find('.price', 0)->plaintext;
         $bcell = $article->find('td.bottom-cell')[0];
         $location = $bcell->find('.breadcrumb', 0)->plaintext;
-        $date =trim($bcell->find('.breadcrumb', 1)->plaintext);
+        $date = trim($bcell->find('.breadcrumb', 1)->plaintext);
         if (strpos($date, 'dzisiaj')) {
           $date = strftime('%e %b');
         } elseif (strpos($date, 'wczoraj')) {
