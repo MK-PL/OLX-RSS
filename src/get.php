@@ -104,5 +104,6 @@ error_reporting(E_ALL & ~E_NOTICE);
     }
   }
 
+  header("Content-Type: text/xml; charset=utf-8");
 	echo $feed;
 ?>
