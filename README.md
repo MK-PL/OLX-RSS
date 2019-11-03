@@ -39,6 +39,7 @@ Uwaga! Portal OLX.pl może wyświetlić inne wyniki wyszukiwania, jeżeli podana
 
 ## Zmiany
 
+- 0.1.4 Wykluczenie losowych ofert, gdy brak wyników wyszukiwania
 - 0.1.3 Naprawienie działania generatora kanałów na serwerze PHP w wersji 7.3, naprawienie błędu uniemożliwiającego wyszukiwanie ofert zawierających polskie znaki
 - 0.1.2 Naprawienie błędu powtarzających się ofert w kanale RSS, zmiana generatora kanałów RSS.
 - 0.1.1 Naprawienie wyświetlania ofert promowanych (wyróżnionych) w kanale RSS.
