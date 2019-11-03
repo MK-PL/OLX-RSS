@@ -56,51 +56,54 @@ error_reporting(E_ALL & ~E_NOTICE);
       $page = file_get_html($baseUrl.'/?page='.$i, false, $context, 0);
     }
     
+    $noResultsTable = $page->find('#offers_table.no-results-table');
     
-    foreach($page->find('#offers_table .wrap') as $article) {
+    if(!$noResultsTable) {
+      foreach($page->find('#offers_table .wrap') as $article) {
 
-        $item[$j] = new Item();
-        if($article->find('.detailsLink strong', 0)->plaintext != ''){
-          $item[$j]->title($article->find('.detailsLink strong', 0)->plaintext);
-          $item[$j]->url(strstr($article->find('.detailsLink', 0)->href, '#', true));
-          $item[$j]->guid(strstr($article->find('.detailsLink', 0)->href, '#', true));
-        } else {
-          $item[$j]->title($article->find('.detailsLinkPromoted strong', 0)->plaintext);
-          $item[$j]->url(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
-          $item[$j]->guid(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
-        }
+          $item[$j] = new Item();
+          if($article->find('.detailsLink strong', 0)->plaintext != ''){
+            $item[$j]->title($article->find('.detailsLink strong', 0)->plaintext);
+            $item[$j]->url(strstr($article->find('.detailsLink', 0)->href, '#', true));
+            $item[$j]->guid(strstr($article->find('.detailsLink', 0)->href, '#', true));
+          } else {
+            $item[$j]->title($article->find('.detailsLinkPromoted strong', 0)->plaintext);
+            $item[$j]->url(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
+            $item[$j]->guid(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
+          }
 
+          
+          $price = $article->find('.price', 0)->plaintext;
+          $bcell = $article->find('td.bottom-cell')[0];
+          $location = $bcell->find('.breadcrumb', 0)->plaintext;
+          $date = trim($bcell->find('.breadcrumb', 1)->plaintext);
+          if (strpos($date, 'dzisiaj')) {
+            $date = strftime('%e %b');
+          } elseif (strpos($date, 'wczoraj')) {
+            $date = strftime('%e %b', strtotime('-1 days'));
+          }
         
-        $price = $article->find('.price', 0)->plaintext;
-        $bcell = $article->find('td.bottom-cell')[0];
-        $location = $bcell->find('.breadcrumb', 0)->plaintext;
-        $date = trim($bcell->find('.breadcrumb', 1)->plaintext);
-        if (strpos($date, 'dzisiaj')) {
-          $date = strftime('%e %b');
-        } elseif (strpos($date, 'wczoraj')) {
-          $date = strftime('%e %b', strtotime('-1 days'));
-        }
-      
-        $item[$j]->description('
-        <table cellpadding="10">
-          <tbody>
-            <tr>
-              <td width="300" bgcolor="#eeeeee">
-                <a href="'.strstr($article->find('.detailsLink', 0)->href, '#', true).'" target="_blank">
-                  <center>
-                    <img src="'.$article->find('.linkWithHash img', 0)->attr['src'].'">
-                  </center>
-                </a>
-              </td>
-              <td>
-                <p>Miejscowość: <strong>'.trim($location).',</strong> Wystawiono: '.$date.'</p><h1>Cena: '.$price.'</h1>
-              </td>
-            </tr>
-          </tbody>
-        </table><hr>');
-      
-        $item[$j]->appendTo($channel);
-        $j++;
+          $item[$j]->description('
+          <table cellpadding="10">
+            <tbody>
+              <tr>
+                <td width="300" bgcolor="#eeeeee">
+                  <a href="'.strstr($article->find('.detailsLink', 0)->href, '#', true).'" target="_blank">
+                    <center>
+                      <img src="'.$article->find('.linkWithHash img', 0)->attr['src'].'">
+                    </center>
+                  </a>
+                </td>
+                <td>
+                  <p>Miejscowość: <strong>'.trim($location).',</strong> Wystawiono: '.$date.'</p><h1>Cena: '.$price.'</h1>
+                </td>
+              </tr>
+            </tbody>
+          </table><hr>');
+        
+          $item[$j]->appendTo($channel);
+          $j++;
+      }
     }
   }
 
