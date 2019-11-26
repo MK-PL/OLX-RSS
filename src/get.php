@@ -64,12 +64,22 @@ error_reporting(E_ALL & ~E_NOTICE);
           $item[$j] = new Item();
           if($article->find('.detailsLink strong', 0)->plaintext != ''){
             $item[$j]->title($article->find('.detailsLink strong', 0)->plaintext);
-            $item[$j]->url(strstr($article->find('.detailsLink', 0)->href, '#', true));
-            $item[$j]->guid(strstr($article->find('.detailsLink', 0)->href, '#', true));
+            if (strpos($article->find('.detailsLink', 0)->href, 'https://www.otomoto.pl') !== false) {
+              $item[$j]->url($article->find('.detailsLink', 0)->href);
+              $item[$j]->guid($article->find('.detailsLink', 0)->href);
+            } else {
+              $item[$j]->url(strstr($article->find('.detailsLink', 0)->href, '#', true));
+              $item[$j]->guid(strstr($article->find('.detailsLink', 0)->href, '#', true));
+            }
           } else {
             $item[$j]->title($article->find('.detailsLinkPromoted strong', 0)->plaintext);
-            $item[$j]->url(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
-            $item[$j]->guid(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
+            if (strpos($article->find('.detailsLinkPromoted', 0)->href, 'https://www.otomoto.pl') !== false) {
+              $item[$j]->url($article->find('.detailsLinkPromoted', 0)->href);
+              $item[$j]->guid($article->find('.detailsLinkPromoted', 0)->href);
+            } else {
+              $item[$j]->url(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
+              $item[$j]->guid(strstr($article->find('.detailsLinkPromoted', 0)->href, '#', true));
+            }
           }
 
           
