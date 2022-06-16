@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL & ~E_NOTICE);
 
 	include 'simple_html_dom.php';
@@ -37,11 +37,11 @@ error_reporting(E_ALL & ~E_NOTICE);
     ->language('pl')
     ->appendTo($feed);
   
-  $context = stream_context_create(array('http' => array('header' => 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0')));
+  $context = stream_context_create(array('https' => array('header' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36')));
   
   $html = file_get_html($baseUrl, false, $context, 0);
-  
-  if(($html->find('.pager', 0))) {
+
+  if(($html->find('ul.pagination-list li', 0))) {
     $numberOfPages = 2;
   } else {
     $numberOfPages = 1;
@@ -56,20 +56,22 @@ error_reporting(E_ALL & ~E_NOTICE);
       $page = file_get_html($baseUrl.'/?page='.$i, false, $context, 0);
     }
     
-    $noResultsTable = $page->find('#offers_table.no-results-table');
+    $resultsTable = $page->find('.listing-grid-container');
     
-    if(!$noResultsTable) {
-      foreach($page->find('#offers_table .wrap') as $article) {
-
+    if($resultsTable) {
+      foreach($page->find("div[data-cy='l-card']") as $article) {
           $item[$j] = new Item();
-          if($article->find('.detailsLink strong', 0)->plaintext != ''){
-            $item[$j]->title($article->find('.detailsLink strong', 0)->plaintext);
-            if (strpos($article->find('.detailsLink', 0)->href, 'https://www.otomoto.pl') !== false) {
-              $item[$j]->url($article->find('.detailsLink', 0)->href);
-              $item[$j]->guid($article->find('.detailsLink', 0)->href);
+          if($article->find('h6', 0)->plaintext != ''){
+            $item[$j]->title($article->find('h6', 0)->plaintext);
+              $url = $article->find('a', 0)->href;
+            if (strpos($url, 'https://www.otomoto.pl') !== false) {
+
+              $item[$j]->url($url);
+              $item[$j]->guid($url);
             } else {
-              $item[$j]->url(strstr($article->find('.detailsLink', 0)->href, '#', true));
-              $item[$j]->guid(strstr($article->find('.detailsLink', 0)->href, '#', true));
+                $url = "https://www.olx.pl".$url;
+              $item[$j]->url($url);
+              $item[$j]->guid($url);
             }
           } else {
             $item[$j]->title($article->find('.detailsLinkPromoted strong', 0)->plaintext);
@@ -82,11 +84,11 @@ error_reporting(E_ALL & ~E_NOTICE);
             }
           }
 
-          
-          $price = $article->find('.price', 0)->plaintext;
-          $bcell = $article->find('td.bottom-cell')[0];
-          $location = $bcell->find('.breadcrumb', 0)->plaintext;
-          $date = trim($bcell->find('.breadcrumb', 1)->plaintext);
+          $price = $article->find('p[data-testid="ad-price"]', 0)->plaintext;
+          $l = $article->find('p[data-testid="location-date"]', 0)->plaintext;
+          $l2 = explode(" - ", $l, 2);
+          $location = trim($l2[0]);
+          $date = trim($l2[1]);
           if (strpos($date, 'dzisiaj')) {
             $date = strftime('%e %b');
           } elseif (strpos($date, 'wczoraj')) {
@@ -98,9 +100,9 @@ error_reporting(E_ALL & ~E_NOTICE);
             <tbody>
               <tr>
                 <td width="300" bgcolor="#eeeeee">
-                  <a href="'.strstr($article->find('.detailsLink', 0)->href, '#', true).'" target="_blank">
+                  <a href="'.$url.'" target="_blank">
                     <center>
-                      <img src="'.$article->find('.linkWithHash img', 0)->attr['src'].'">
+                      <img src="'.$article->find('img', 0)->attr['src'].'">
                     </center>
                   </a>
                 </td>
@@ -119,4 +121,3 @@ error_reporting(E_ALL & ~E_NOTICE);
 
   header("Content-Type: text/xml; charset=utf-8");
 	echo $feed;
-?>
